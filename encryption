@@ -1,0 +1,125 @@
+https://monerodocs.org/cryptography/asymmetric/introduction/
+
+We are talking asymmetric cryptography here. The "asymmetric" simply means the are two keys:
+
+the private key (used primarily for signing data and for decrypting data)
+the public key (used primarily for signature verification and encrypting data)
+
+gas
+In the previous section, it was mentioned that fees are paid using
+Ether for any execution that changes state in Ethereum. Ether is
+traded on public exchanges and its price fluctuates daily. If Ether is
+used for paying fees, then the cost of using the same service could
+be very high on certain days and low on other days. People will wait
+for the price of Ether to fall to execute their transactions. This is not
+ideal for a platform such as Ethereum. Gas helps in alleviating this
+problem. Gas is the internal currency of Ethereum. The execution
+and resource utilization cost is predetermined in Ethereum in terms
+of gas units. This is also known as gas cost. There is also gas price
+that can be adjusted to a lower price when the price of Ether
+increases and a higher price when the price of Ether decreases. For
+example, to invoke a function in a contract that modifies a string
+will cost gas, which is predetermined, and users should pay in terms
+of gas to ensure smooth execution of this transaction.
+
+Digital signatures
+Earlier, we discussed cryptography using asymmetric keys. One of
+the important cases for using asymmetric keys is in the creation and
+verification of a digital signature. Digital signatures are very similar
+to a signature done by an individual on a piece of paper. Similar to a
+paper signature, a digital signature helps in identifying an
+individual. It also helps in ensuring that messages are not tampered
+with in transit. Let's understand digital signatures with the help of
+an example.
+Alice wants to send a message to Tom. How can Tom identify and
+ensure that the message has come from Alice only and that the
+message has not been changed or tampered with in transit? Instead
+of sending a raw message/transaction, Alice creates a hash of the
+entire payload and encrypts the hash with her private key. She
+appends the resultant digital signature to the hash and transmits it
+to Tom. When the transaction reaches Tom, he extracts the digital
+signature and decrypts it using Alice's public key to find the original
+hash. He also extracts the original hash from the rest of the message
+and compares both the hashes. If the hashes match, it means that it
+actually originated from Alice and that it has not been tampered
+with.
+Digital signatures are used to sign transaction data by the owner of
+the asset or cryptocurrency, such as Ether.
+
+
+Mining Ethereum blocks
+Mining consists in processing new transactions and creating new blocks. 
+Transactions are indeed always packed into blocks. Therefore a miner performs four steps
+•	collects transactions from the transaction MemPool
+•	executes code on the EVM
+•	creates Merkle proofs
+•	runs ETHash proof-of-work algorithm
+This happens regardless of the rewards that each miner gets from mining a certain block. 
+The MemPool collects all transactions that are pending and ready to be processed. The code appended to each transaction is 
+executed on the local EVM (Ethereum Virtual Machine). 
+The state of the virtual machine, the transactions and the receipts of their execution are all stored in 
+Merkle trees, the roots of which are store into the block header. Finally the proof of work calculates the nonce that, 
+together with the block content, generates a hash with difficulty indicated by the difficulty parameter (also stored in the block).
+
+Transaction Structure
+From: The transaction sender. It is a 20-byte address representing the account initiating this transaction.
+
+To: The recipient of this transaction. It is also a 20-byte address. Depends on the use, it can be another EOA, a Contract Account, 
+or just left empty.
+
+Value: The amount of fund in wei (1 ether = 10¹⁸ weis) to be transferred from “From” to “To”. If “To” is an EOA, it is simply a 
+fund transfer. If “To” is a Contract Address, it is the amount of fund passed to the deployed contract. The contract is coded such 
+that it can accept fund.
+
+Data/Input: This data field is mainly for contract related activities. For new deployment of contract it is the bytecode and 
+the encoded arguments. For execution of contract function, it contains the function signature and the encoded arguments. 
+It is left empty in fund transfer.
+
+Gas Price and Gas Limit: Both are related to the cost processing this transaction. Each processing step of a transaction performed by 
+the miner has a predefined gas unit (for example, “sload” which gets data from permanent storage costs you 20 gas units). Gas Price is 
+the amount (in wei) per gas unit. This is the unit price transaction sender willing to pay. Gas Limit is the maximum gas units spent 
+for this transaction. The maximum gas unit spent by your transaction will not exceed the Gas Limit, as a protection in case any 
+discrepancy in transaction processing.
+
+contract Test {
+    uint a;
+    address d = 0x12345678901234567890123456789012;
+
+    function Test(uint testInt)  { a = testInt;}
+
+    event Event(uint indexed b, bytes32 c);
+
+    event Event2(uint indexed b, bytes32 c);
+
+    function foo(uint b, bytes32 c) returns(address) {
+        Event(b, c);
+        return d;
+    }
+}
+
+// would result in the JSON:
+[{
+    "type":"constructor",
+    "payable":false,
+    "stateMutability":"nonpayable"
+    "inputs":[{"name":"testInt","type":"uint256"}],
+  },{
+    "type":"function",
+    "name":"foo",
+    "constant":false,
+    "payable":false,
+    "stateMutability":"nonpayable",
+    "inputs":[{"name":"b","type":"uint256"}, {"name":"c","type":"bytes32"}],
+    "outputs":[{"name":"","type":"address"}]
+  },{
+    "type":"event",
+    "name":"Event",
+    "inputs":[{"indexed":true,"name":"b","type":"uint256"}, {"indexed":false,"name":"c","type":"bytes32"}],
+    "anonymous":false
+  },{
+    "type":"event",
+    "name":"Event2",
+    "inputs":[{"indexed":true,"name":"b","type":"uint256"},{"indexed":false,"name":"c","type":"bytes32"}],
+    "anonymous":false
+}]
+
